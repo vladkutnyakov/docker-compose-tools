@@ -1,10 +1,15 @@
 {
   "name": "docker-compose-tools",
-  "displayName": "docker-compose-tools",
+  "displayName": "Docker Compose Tools",
   "description": "",
   "version": "0.0.1",
+  "author": {
+    "name": "Vlad Kutnyakov",
+    "email": "kutnyakov1@yandex.ru",
+    "url": "https://github.com/vladkutnyakov"
+  },
   "engines": {
-    "vscode": "^1.115.0"
+    "vscode": "^1.92.0"
   },
   "categories": [
     "Other"
@@ -12,12 +17,103 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "docker-compose-tools",
+          "title": "Compose Tools",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "docker-compose-tools": [
+        {
+          "id": "dockerComposeFiles",
+          "name": "Files"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "docker-compose-tools.helloWorld",
-        "title": "Hello World"
+        "command": "docker-compose-tools.file.open",
+        "title": "Open File"
+      },
+      {
+        "command": "docker-compose-tools.file.openFolderInEditor",
+        "title": "Open Folder in Editor"
+      },
+      {
+        "command": "docker-compose-tools.file.openFolderInFileExplorer",
+        "title": "Open Folder in File Explorer"
+      },
+      {
+        "command": "docker-compose-tools.file.add",
+        "title": "Add File",
+        "icon": "resources/add.svg"
+      },
+      {
+        "command": "docker-compose-tools.file.remove",
+        "title": "Remove File"
+      },
+      {
+        "command": "docker-compose-tools.compose.pull",
+        "title": "Compose Pull"
+      },
+      {
+        "command": "docker-compose-tools.compose.up",
+        "title": "Compose Up"
+      },
+      {
+        "command": "docker-compose-tools.compose.down",
+        "title": "Compose Down"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "docker-compose-tools.file.add",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "docker-compose-tools.compose.pull",
+          "when": "view == dockerComposeFiles",
+          "group": "compose@1"
+        },
+        {
+          "command": "docker-compose-tools.compose.up",
+          "when": "view == dockerComposeFiles",
+          "group": "compose@2"
+        },
+        {
+          "command": "docker-compose-tools.compose.down",
+          "when": "view == dockerComposeFiles",
+          "group": "compose@3"
+        },
+        {
+          "command": "docker-compose-tools.file.open",
+          "when": "view == dockerComposeFiles",
+          "group": "file@1"
+        },
+        {
+          "command": "docker-compose-tools.file.openFolderInEditor",
+          "when": "view == dockerComposeFiles",
+          "group": "file@2"
+        },
+        {
+          "command": "docker-compose-tools.file.openFolderInFileExplorer",
+          "when": "view == dockerComposeFiles",
+          "group": "file@3"
+        },
+        {
+          "command": "docker-compose-tools.file.remove",
+          "when": "view == dockerComposeFiles",
+          "group": "file@4"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
