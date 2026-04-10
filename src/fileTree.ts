@@ -1,21 +1,43 @@
 import * as vscode from 'vscode'
-import { SavedFile } from './types'
+import { ComposeProject, SavedFile } from './types'
 import path from 'path'
+import { exec } from 'child_process'
+import { promisify } from 'util'
 
 export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile> {
   private state: vscode.Memento
   private files: SavedFile[] = []
+
   private _onDidChangeTreeData = new vscode.EventEmitter<SavedFile | undefined | void>()
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event
+
+  private POLL_DELAY = 2000
 
   constructor (state: vscode.Memento) {
     this.state = state
     this.files = this.getFilesFromState()
+    this.poll()
   }
 
   getTreeItem (element: SavedFile) {
-    const file = vscode.Uri.file(element.path)
-    return new FileItem(file, element.label)
+    const item = new FileItem(vscode.Uri.file(element.path), element.label)
+
+    const statusMap = {
+      running: { icon: 'circle-filled', color: 'testing.iconPassed', label: 'running' },
+      exited: { icon: 'circle-filled', color: 'testing.iconFailed', label: 'exited' },
+      idle: { icon: 'circle-filled', color: 'testing.iconSkipped', label: 'idle' },
+    }
+
+    const filteredStatus = (element.status
+      ? element.status.replace(/\(.*\)/gm, '')
+      : 'idle') as keyof typeof statusMap
+
+    const status = statusMap[filteredStatus]
+
+    item.iconPath = new vscode.ThemeIcon(status.icon, new vscode.ThemeColor(status.color))
+    item.description = status.label
+
+    return item
   }
 
   getChildren (element?: SavedFile | undefined) {
@@ -47,7 +69,8 @@ export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile> {
 			this.files.push({
         name: fileName,
         path: filePath,
-        label: fileLabel
+        label: fileLabel,
+        status: null
       })
 		}
 		await this.state.update('savedFiles', this.files)
@@ -64,10 +87,37 @@ export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile> {
 
     this.refresh()
   }
+
+  execAsync = promisify(exec)
+  async poll () {
+    try {
+      await this.updateStatuses()
+    } catch (e) {
+      console.log(e)
+    }
+
+    setTimeout(() => this.poll(), this.POLL_DELAY)
+  }
+
+  async updateStatuses () {
+    const { stdout } = await this.execAsync('docker compose ls -a --format json')
+    const projects: ComposeProject[] = JSON.parse(stdout)
+    
+    for (const project of projects) {
+      const index = this.files.findIndex(file => file.label === project.Name)
+      if (index === -1) continue
+
+      this.files[index].status = project.Status
+    }
+
+    await this.state.update('savedFiles', this.files)
+
+    this.refresh()
+  }
 }
 
 class FileItem extends vscode.TreeItem {
-  constructor (uri: vscode.Uri, label: string) {
+  constructor (uri: vscode.Uri, label: string) { 
     super(uri)
     this.label = label
   }
@@ -80,7 +130,7 @@ export function registerFileTree (context: vscode.ExtensionContext) {
 		treeDataProvider: treeProvider,
 	})
 
-	context.subscriptions.push(tree)
+  context.subscriptions.push(tree)
 
   return treeProvider
 }
