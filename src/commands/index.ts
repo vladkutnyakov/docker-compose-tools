@@ -1,8 +1,8 @@
 import * as vscode from 'vscode'
-import { FileTreeProvider } from './fileTree'
-import { SavedFile } from './types'
-import { pull, up, down } from './commands/compose'
-import { add, open, openFolderInEditor, openFolderInFileExplorer, remove } from './commands/file'
+import { FileTreeProvider } from '../fileTree'
+import { SavedFile } from '../types'
+import { pull, up, stop, down } from './compose'
+import { add, open, openFolderInEditor, openFolderInFileExplorer, remove } from './file'
 
 export function registerCommands (context: vscode.ExtensionContext, tree: FileTreeProvider) {
 	context.subscriptions.push(
@@ -14,6 +14,7 @@ export function registerCommands (context: vscode.ExtensionContext, tree: FileTr
 
 		vscode.commands.registerCommand('docker-compose-tools.compose.pull', pull),
 		vscode.commands.registerCommand('docker-compose-tools.compose.up', up),
+		vscode.commands.registerCommand('docker-compose-tools.compose.stop', stop),
 		vscode.commands.registerCommand('docker-compose-tools.compose.down', down),
 	)
 }

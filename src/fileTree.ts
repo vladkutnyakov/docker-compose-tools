@@ -23,33 +23,25 @@ export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile> {
     const item = new FileItem(vscode.Uri.file(element.path), element.label)
 
     const statusMap = {
-      running: { icon: 'circle-filled', color: 'testing.iconPassed', label: 'running' },
-      exited: { icon: 'circle-filled', color: 'testing.iconFailed', label: 'exited' },
-      idle: { icon: 'circle-filled', color: 'testing.iconSkipped', label: 'idle' },
+      running: { icon: 'circle-filled', color: 'testing.iconPassed' },
+      exited: { icon: 'circle-filled', color: 'testing.iconFailed' },
+      idle: { icon: 'circle-filled', color: 'testing.iconSkipped' },
     }
 
     const filteredStatus = (element.status
       ? element.status.replace(/\(.*\)/gm, '')
       : 'idle') as keyof typeof statusMap
 
-    const status = statusMap[filteredStatus]
+    const status = statusMap[filteredStatus] ?? statusMap['idle']
 
     item.iconPath = new vscode.ThemeIcon(status.icon, new vscode.ThemeColor(status.color))
-    item.description = status.label
+    item.description = element.status || 'idle'
 
     return item
   }
 
   getChildren (element?: SavedFile | undefined) {
     return this.files
-  }
-
-  getParent (element: SavedFile): vscode.ProviderResult<SavedFile> {
-    throw new Error('Method "getParent" not implemented.')
-  }
-
-  resolveTreeItem (item: vscode.TreeItem, element: SavedFile, token: vscode.CancellationToken): vscode.ProviderResult<vscode.TreeItem> {
-    throw new Error('Method "resolveTreeItem" not implemented.')
   }
 
   refresh () {
@@ -63,6 +55,8 @@ export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile> {
   async addFiles (uris: vscode.Uri[]) {
 		for (const uri of uris) {
 			const filePath = uri.fsPath
+      if (this.files.find(file => file.path === filePath)) continue
+
 			const fileName = path.basename(filePath)
       const fileLabel = path.dirname(uri.path).split('/').pop() ?? path.dirname(filePath)
 
@@ -103,11 +97,9 @@ export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile> {
     const { stdout } = await this.execAsync('docker compose ls -a --format json')
     const projects: ComposeProject[] = JSON.parse(stdout)
     
-    for (const project of projects) {
-      const index = this.files.findIndex(file => file.label === project.Name)
-      if (index === -1) continue
-
-      this.files[index].status = project.Status
+    for (const file of this.files) {
+      const project = projects.find(project => file.label === project.Name)
+      file.status = project?.Status ?? 'idle'
     }
 
     await this.state.update('savedFiles', this.files)

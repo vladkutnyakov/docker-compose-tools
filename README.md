@@ -1,71 +1,155 @@
-# docker-compose-tools README
+# Docker Compose Tools
 
-This is the README for your extension "docker-compose-tools". After writing up a brief description, we recommend including the following sections.
+Расширение для Visual Studio Code, предназначенное для управления проектами Docker Compose. Предоставляет выделенную панель в боковой панели редактора, позволяющую добавлять файлы `docker-compose.yml`, отслеживать статусы проектов в реальном времени и выполнять основные команды Docker Compose через контекстное меню.
 
-## Features
+## Возможности
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- **Панель управления проектами** -- выделенное представление в Activity Bar со списком добавленных файлов Docker Compose.
+- **Мониторинг статусов** -- автоматический опрос `docker compose ls` каждые 2 секунды с цветовой индикацией состояния проектов: зеленый (running), красный (exited), серый (idle).
+- **Управление жизненным циклом** -- команды `pull`, `up`, `stop` и `down` доступны через контекстное меню каждого проекта.
+- **Управление файлами** -- добавление и удаление файлов `docker-compose.yml` / `docker-compose.yaml` из панели.
+- **Быстрый доступ** -- открытие файла конфигурации в редакторе, открытие каталога проекта в новом окне VS Code или в системном файловом менеджере.
+- **Персистентность** -- список добавленных файлов сохраняется между сессиями в глобальном состоянии расширения.
+- **Управление терминалами** -- каждый проект получает собственный терминал, привязанный к каталогу файла конфигурации. Терминалы переиспользуются при повторных вызовах команд.
 
-For example if there is an image subfolder under your extension project workspace:
+## Требования
 
-\!\[feature X\]\(images/feature-x.png\)
+- Visual Studio Code версии 1.92.0 или выше.
+- Docker Engine и Docker Compose CLI, установленные и доступные в `PATH`.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## Установка
 
-## Requirements
+Установите расширение из Visual Studio Code Marketplace, выполнив поиск по имени **Docker Compose Tools**, или установите файл `.vsix` вручную:
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+```
+code --install-extension docker-compose-tools-0.0.1.vsix
+```
 
-## Extension Settings
+## Использование
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+1. После установки на Activity Bar появится иконка **Compose Tools**.
+2. Нажмите кнопку **+** в заголовке панели, чтобы добавить один или несколько файлов `docker-compose.yml`.
+3. Добавленные файлы отображаются в виде списка с именем родительского каталога в качестве метки и текущим статусом проекта.
+4. Щелкните правой кнопкой мыши по элементу списка, чтобы открыть контекстное меню с доступными действиями.
 
-For example:
+### Команды Docker Compose
 
-This extension contributes the following settings:
+| Команда | Действие |
+|---------|----------|
+| Compose Pull | Выполняет `docker compose pull` |
+| Compose Up | Выполняет `docker compose up -d` |
+| Compose Stop | Выполняет `docker compose stop` |
+| Compose Down | Выполняет `docker compose down` |
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+### Команды управления файлами
 
-## Known Issues
+| Команда | Действие |
+|---------|----------|
+| Open File | Открывает файл конфигурации в редакторе |
+| Open Folder in Editor | Открывает каталог проекта в новом окне VS Code |
+| Open Folder in File Explorer | Открывает каталог проекта в системном файловом менеджере |
+| Add File | Добавляет файлы `.yml` / `.yaml` в панель |
+| Remove File | Удаляет файл из панели (не с диска) |
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+## Информация о релизе
 
-## Release Notes
+### 0.1.0
 
-Users appreciate release notes as you update your extension.
+Улучшения:
 
-### 1.0.0
+- Терминал привязан к проекту, а не к команде.
 
-Initial release of ...
+Исправления:
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+- Исравлен баг с многократным добавлением одного и того же файла.
 
 ---
 
-## Following extension guidelines
+### 0.0.1
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+Первоначальный выпуск:
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+- Панель управления проектами Docker Compose в Activity Bar.
+- Мониторинг статусов проектов в реальном времени.
+- Команды `pull`, `up`, `stop`, `down`.
+- Управление файлами: добавление, удаление, открытие.
+- Персистентное хранение списка файлов.
 
-## Working with Markdown
+---
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+# Docker Compose Tools (English)
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+A Visual Studio Code extension for managing Docker Compose projects. It provides a dedicated panel in the editor sidebar that allows adding `docker-compose.yml` files, monitoring project statuses in real time, and executing common Docker Compose commands via context menu.
 
-## For more information
+## Features
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+- **Project management panel** -- a dedicated view in the Activity Bar listing all added Docker Compose files.
+- **Status monitoring** -- automatic polling of `docker compose ls` every 2 seconds with color-coded project status indicators: green (running), red (exited), grey (idle).
+- **Lifecycle management** -- `pull`, `up`, `stop`, and `down` commands accessible via the context menu of each project.
+- **File management** -- add and remove `docker-compose.yml` / `docker-compose.yaml` files from the panel.
+- **Quick access** -- open the configuration file in the editor, open the project directory in a new VS Code window, or reveal it in the system file explorer.
+- **Persistence** -- the list of added files is preserved across sessions using the extension's global state.
+- **Terminal management** -- each project gets its own terminal bound to the configuration file's directory. Terminals are reused on subsequent command invocations.
 
-**Enjoy!**
+## Requirements
+
+- Visual Studio Code version 1.92.0 or higher.
+- Docker Engine and Docker Compose CLI installed and available in `PATH`.
+
+## Installation
+
+Install the extension from the Visual Studio Code Marketplace by searching for **Docker Compose Tools**, or install a `.vsix` file manually:
+
+```
+code --install-extension docker-compose-tools-0.0.1.vsix
+```
+
+## Usage
+
+1. After installation, a **Compose Tools** icon will appear on the Activity Bar.
+2. Click the **+** button in the panel header to add one or more `docker-compose.yml` files.
+3. Added files are displayed as a list, using the parent directory name as a label and showing the current project status.
+4. Right-click an item to open the context menu with available actions.
+
+### Docker Compose Commands
+
+| Command | Action |
+|---------|--------|
+| Compose Pull | Runs `docker compose pull` |
+| Compose Up | Runs `docker compose up -d` |
+| Compose Stop | Runs `docker compose stop` |
+| Compose Down | Runs `docker compose down` |
+
+### File Management Commands
+
+| Command | Action |
+|---------|--------|
+| Open File | Opens the configuration file in the editor |
+| Open Folder in Editor | Opens the project directory in a new VS Code window |
+| Open Folder in File Explorer | Reveals the project directory in the system file manager |
+| Add File | Adds `.yml` / `.yaml` files to the panel |
+| Remove File | Removes the file from the panel (does not delete from disk) |
+
+## Release Notes
+
+### 0.1.0
+
+Improvements:
+
+- Terminal is now bound to the project rather than to the command.
+
+Fixes:
+
+- Fixed a bug with duplicate addition of the same file.
+
+---
+
+### 0.0.1
+
+Initial release:
+
+- Docker Compose project management panel in the Activity Bar.
+- Real-time project status monitoring.
+- `pull`, `up`, `stop`, `down` commands.
+- File management: add, remove, open.
+- Persistent file list storage.
