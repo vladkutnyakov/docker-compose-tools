@@ -5,6 +5,8 @@ import { exec } from 'child_process'
 import { promisify } from 'util'
 
 const TREE_MIME = 'application/vnd.code.tree.dockercomposefiles'
+const CLICK_COMMAND = 'docker-compose-tools.file.click'
+const DOUBLE_CLICK_DELAY = 500
 
 export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile>, vscode.TreeDragAndDropController<SavedFile> {
   private state: vscode.Memento
@@ -41,6 +43,11 @@ export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile>, vsc
 
     item.iconPath = new vscode.ThemeIcon(status.icon, new vscode.ThemeColor(status.color))
     item.description = element.status || 'idle'
+    item.command = {
+      command: CLICK_COMMAND,
+      title: 'Open',
+      arguments: [element],
+    }
 
     return item
   }
@@ -165,7 +172,19 @@ export function registerFileTree (context: vscode.ExtensionContext) {
 		canSelectMany: true,
 	})
 
-  context.subscriptions.push(tree)
+  // tree views have no native double click event, so detect it from two clicks in a row
+  let lastClick: { path: string, time: number } | undefined
+  const click = vscode.commands.registerCommand(CLICK_COMMAND, (file: SavedFile) => {
+    const now = Date.now()
+    const isDoubleClick = lastClick?.path === file.path && now - lastClick.time < DOUBLE_CLICK_DELAY
+
+    lastClick = isDoubleClick ? undefined : { path: file.path, time: now }
+    if (isDoubleClick) {
+      vscode.commands.executeCommand('docker-compose-tools.file.open', file)
+    }
+  })
+
+  context.subscriptions.push(tree, click)
 
   return treeProvider
 }
