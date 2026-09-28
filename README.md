@@ -56,42 +56,7 @@ code --install-extension docker-compose-tools-0.2.0.vsix
 
 ## Информация о релизе
 
-### 0.2.0
-
-Новое:
-
-- Кнопка обновления статусов в заголовке панели.
-- Предупреждение, если Docker не запущен; команды Docker Compose блокируются до его запуска.
-- Изменение порядка файлов перетаскиванием (с поддержкой множественного выбора).
-- Открытие файла двойным щелчком.
-
-Исправления:
-
-- Иконка статуса сохраняет цвет у выделенных элементов.
-
----
-
-### 0.1.0
-
-Улучшения:
-
-- Терминал привязан к проекту, а не к команде.
-
-Исправления:
-
-- Исравлен баг с многократным добавлением одного и того же файла.
-
----
-
-### 0.0.1
-
-Первоначальный выпуск:
-
-- Панель управления проектами Docker Compose в Activity Bar.
-- Мониторинг статусов проектов в реальном времени.
-- Команды `pull`, `up`, `stop`, `down`.
-- Управление файлами: добавление, удаление, открытие.
-- Персистентное хранение списка файлов.
+История изменений по версиям — в [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -153,39 +118,4 @@ code --install-extension docker-compose-tools-0.2.0.vsix
 
 ## Release Notes
 
-### 0.2.0
-
-New:
-
-- Refresh button in the panel header.
-- Warning when Docker is not running; Docker Compose commands are blocked until it starts.
-- Drag and drop reordering of files (with multi-select).
-- Open a file with a double click.
-
-Fixes:
-
-- Status icons keep their color on selected rows.
-
----
-
-### 0.1.0
-
-Improvements:
-
-- Terminal is now bound to the project rather than to the command.
-
-Fixes:
-
-- Fixed a bug with duplicate addition of the same file.
-
----
-
-### 0.0.1
-
-Initial release:
-
-- Docker Compose project management panel in the Activity Bar.
-- Real-time project status monitoring.
-- `pull`, `up`, `stop`, `down` commands.
-- File management: add, remove, open.
-- Persistent file list storage.
+See [CHANGELOG.md](CHANGELOG.md) for the version history.
