@@ -20,7 +20,7 @@ export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile>, vsc
 
   private POLL_DELAY = 2000
 
-  constructor (state: vscode.Memento) {
+  constructor (state: vscode.Memento, private extensionUri: vscode.Uri) {
     this.state = state
     this.files = this.getFilesFromState()
     this.poll()
@@ -29,19 +29,16 @@ export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile>, vsc
   getTreeItem (element: SavedFile) {
     const item = new FileItem(vscode.Uri.file(element.path), element.label)
 
-    const statusMap = {
-      running: { icon: 'circle-filled', color: 'testing.iconPassed' },
-      exited: { icon: 'circle-filled', color: 'testing.iconFailed' },
-      idle: { icon: 'circle-filled', color: 'testing.iconSkipped' },
-    }
+    const statuses = ['running', 'exited', 'idle']
 
-    const filteredStatus = (element.status
+    const filteredStatus = element.status
       ? element.status.replace(/\(.*\)/gm, '')
-      : 'idle') as keyof typeof statusMap
+      : 'idle'
 
-    const status = statusMap[filteredStatus] ?? statusMap['idle']
+    const status = statuses.includes(filteredStatus) ? filteredStatus : 'idle'
 
-    item.iconPath = new vscode.ThemeIcon(status.icon, new vscode.ThemeColor(status.color))
+    // svg instead of ThemeIcon: vscode repaints ThemeIcon colors in selected rows
+    item.iconPath = vscode.Uri.joinPath(this.extensionUri, 'resources', 'status', `${status}.svg`)
     item.description = element.status || 'idle'
     item.command = {
       command: CLICK_COMMAND,
@@ -164,7 +161,7 @@ class FileItem extends vscode.TreeItem {
 }
 
 export function registerFileTree (context: vscode.ExtensionContext) {
-	const treeProvider = new FileTreeProvider(context.globalState)
+	const treeProvider = new FileTreeProvider(context.globalState, context.extensionUri)
 
 	const tree = vscode.window.createTreeView('dockerComposeFiles', {
 		treeDataProvider: treeProvider,
