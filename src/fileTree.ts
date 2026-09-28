@@ -4,9 +4,14 @@ import path from 'path'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 
-export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile> {
+const TREE_MIME = 'application/vnd.code.tree.dockercomposefiles'
+
+export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile>, vscode.TreeDragAndDropController<SavedFile> {
   private state: vscode.Memento
   private files: SavedFile[] = []
+
+  readonly dragMimeTypes = [TREE_MIME]
+  readonly dropMimeTypes = [TREE_MIME]
 
   private _onDidChangeTreeData = new vscode.EventEmitter<SavedFile | undefined | void>()
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event
@@ -82,6 +87,42 @@ export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile> {
     this.refresh()
   }
 
+  handleDrag (source: readonly SavedFile[], dataTransfer: vscode.DataTransfer) {
+    dataTransfer.set(TREE_MIME, new vscode.DataTransferItem(source.map(file => file.path)))
+  }
+
+  async handleDrop (target: SavedFile | undefined, dataTransfer: vscode.DataTransfer) {
+    const paths: string[] | undefined = dataTransfer.get(TREE_MIME)?.value
+    if (!paths?.length) return
+    if (target && paths.includes(target.path)) return
+
+    await this.moveFiles(paths, target)
+  }
+
+  async moveFiles (paths: string[], target?: SavedFile) {
+    const firstMovedIndex = this.files.findIndex(file => paths.includes(file.path))
+    const moved = this.files.filter(file => paths.includes(file.path))
+    if (!moved.length) return
+
+    const rest = this.files.filter(file => !paths.includes(file.path))
+
+    let insertIndex = rest.length
+    if (target) {
+      const targetIndex = rest.findIndex(file => file.path === target.path)
+      if (targetIndex === -1) return
+
+      // dragging down -> place after target, dragging up -> place before target
+      const originalTargetIndex = this.files.findIndex(file => file.path === target.path)
+      insertIndex = firstMovedIndex < originalTargetIndex ? targetIndex + 1 : targetIndex
+    }
+
+    rest.splice(insertIndex, 0, ...moved)
+    this.files.splice(0, this.files.length, ...rest)
+    await this.state.update('savedFiles', this.files)
+
+    this.refresh()
+  }
+
   execAsync = promisify(exec)
   async poll () {
     try {
@@ -120,6 +161,8 @@ export function registerFileTree (context: vscode.ExtensionContext) {
 
 	const tree = vscode.window.createTreeView('dockerComposeFiles', {
 		treeDataProvider: treeProvider,
+		dragAndDropController: treeProvider,
+		canSelectMany: true,
 	})
 
   context.subscriptions.push(tree)
