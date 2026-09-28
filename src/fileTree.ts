@@ -153,6 +153,18 @@ export class FileTreeProvider implements vscode.TreeDataProvider<TreeElement>, v
 
   execAsync = promisify(exec)
   async poll () {
+    await this.reload()
+    setTimeout(() => this.poll(), this.POLL_DELAY)
+  }
+
+  // shared between the poll loop and the manual refresh button
+  private reloading: Promise<void> | undefined
+  reload () {
+    this.reloading ??= this.fetchAndUpdate().finally(() => { this.reloading = undefined })
+    return this.reloading
+  }
+
+  private async fetchAndUpdate () {
     try {
       const projects = await this.fetchProjects()
       this.setDockerRunning(projects !== undefined)
@@ -160,8 +172,6 @@ export class FileTreeProvider implements vscode.TreeDataProvider<TreeElement>, v
     } catch (e) {
       console.log(e)
     }
-
-    setTimeout(() => this.poll(), this.POLL_DELAY)
   }
 
   // undefined means docker is not available (daemon stopped or cli missing)

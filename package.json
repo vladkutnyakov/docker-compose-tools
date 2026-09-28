@@ -59,6 +59,11 @@
         "icon": "$(add)"
       },
       {
+        "command": "docker-compose-tools.file.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
         "command": "docker-compose-tools.file.remove",
         "title": "Remove File"
       },
@@ -83,7 +88,12 @@
       "view/title": [
         {
           "command": "docker-compose-tools.file.add",
-          "group": "navigation",
+          "group": "navigation@1",
+          "when": "view == dockerComposeFiles"
+        },
+        {
+          "command": "docker-compose-tools.file.refresh",
+          "group": "navigation@2",
           "when": "view == dockerComposeFiles"
         }
       ],

@@ -15,6 +15,7 @@ export function registerCommands (context: vscode.ExtensionContext, tree: FileTr
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('docker-compose-tools.file.add', () => add(tree)),
+		vscode.commands.registerCommand('docker-compose-tools.file.refresh', () => tree.reload()),
 		vscode.commands.registerCommand('docker-compose-tools.file.open', open),
 		vscode.commands.registerCommand('docker-compose-tools.file.openFolderInEditor', openFolderInEditor),
 		vscode.commands.registerCommand('docker-compose-tools.file.openFolderInFileExplorer', openFolderInFileExplorer),
