@@ -90,42 +90,42 @@
       "view/item/context": [
         {
           "command": "docker-compose-tools.compose.pull",
-          "when": "view == dockerComposeFiles",
+          "when": "view == dockerComposeFiles && viewItem == composeFile",
           "group": "compose@1"
         },
         {
           "command": "docker-compose-tools.compose.up",
-          "when": "view == dockerComposeFiles",
+          "when": "view == dockerComposeFiles && viewItem == composeFile",
           "group": "compose@2"
         },
         {
           "command": "docker-compose-tools.compose.stop",
-          "when": "view == dockerComposeFiles",
+          "when": "view == dockerComposeFiles && viewItem == composeFile",
           "group": "compose@3"
         },
         {
           "command": "docker-compose-tools.compose.down",
-          "when": "view == dockerComposeFiles",
+          "when": "view == dockerComposeFiles && viewItem == composeFile",
           "group": "compose@4"
         },
         {
           "command": "docker-compose-tools.file.open",
-          "when": "view == dockerComposeFiles",
+          "when": "view == dockerComposeFiles && viewItem == composeFile",
           "group": "file@1"
         },
         {
           "command": "docker-compose-tools.file.openFolderInEditor",
-          "when": "view == dockerComposeFiles",
+          "when": "view == dockerComposeFiles && viewItem == composeFile",
           "group": "file@2"
         },
         {
           "command": "docker-compose-tools.file.openFolderInFileExplorer",
-          "when": "view == dockerComposeFiles",
+          "when": "view == dockerComposeFiles && viewItem == composeFile",
           "group": "file@3"
         },
         {
           "command": "docker-compose-tools.file.remove",
-          "when": "view == dockerComposeFiles",
+          "when": "view == dockerComposeFiles && viewItem == composeFile",
           "group": "file@4"
         }
       ]

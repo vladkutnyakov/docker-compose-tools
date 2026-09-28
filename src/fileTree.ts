@@ -8,15 +8,24 @@ const TREE_MIME = 'application/vnd.code.tree.dockercomposefiles'
 const CLICK_COMMAND = 'docker-compose-tools.file.click'
 const DOUBLE_CLICK_DELAY = 500
 
-export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile>, vscode.TreeDragAndDropController<SavedFile> {
+// pinned row shown above the files while docker is unavailable
+const DOCKER_WARNING = { dockerWarning: true } as const
+type TreeElement = SavedFile | typeof DOCKER_WARNING
+const isDockerWarning = (element: TreeElement): element is typeof DOCKER_WARNING => element === DOCKER_WARNING
+
+export class FileTreeProvider implements vscode.TreeDataProvider<TreeElement>, vscode.TreeDragAndDropController<TreeElement> {
   private state: vscode.Memento
   private files: SavedFile[] = []
 
   readonly dragMimeTypes = [TREE_MIME]
   readonly dropMimeTypes = [TREE_MIME]
 
-  private _onDidChangeTreeData = new vscode.EventEmitter<SavedFile | undefined | void>()
+  private _onDidChangeTreeData = new vscode.EventEmitter<TreeElement | undefined | void>()
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event
+
+  dockerRunning: boolean | undefined
+  private _onDidChangeDockerRunning = new vscode.EventEmitter<boolean>()
+  readonly onDidChangeDockerRunning = this._onDidChangeDockerRunning.event
 
   private POLL_DELAY = 2000
 
@@ -26,7 +35,9 @@ export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile>, vsc
     this.poll()
   }
 
-  getTreeItem (element: SavedFile) {
+  getTreeItem (element: TreeElement) {
+    if (isDockerWarning(element)) return this.getDockerWarningItem()
+
     const item = new FileItem(vscode.Uri.file(element.path), element.label)
 
     const statuses = ['running', 'exited', 'idle']
@@ -49,8 +60,19 @@ export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile>, vsc
     return item
   }
 
-  getChildren (element?: SavedFile | undefined) {
-    return this.files
+  getDockerWarningItem () {
+    const item = new vscode.TreeItem('Docker is not running')
+    item.iconPath = new vscode.ThemeIcon('warning', new vscode.ThemeColor('list.warningForeground'))
+    item.tooltip = 'Start Docker to manage compose projects'
+    item.contextValue = 'dockerWarning'
+
+    return item
+  }
+
+  getChildren (element?: TreeElement | undefined): TreeElement[] {
+    return this.dockerRunning === false
+      ? [DOCKER_WARNING, ...this.files]
+      : this.files
   }
 
   refresh () {
@@ -91,13 +113,15 @@ export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile>, vsc
     this.refresh()
   }
 
-  handleDrag (source: readonly SavedFile[], dataTransfer: vscode.DataTransfer) {
-    dataTransfer.set(TREE_MIME, new vscode.DataTransferItem(source.map(file => file.path)))
+  handleDrag (source: readonly TreeElement[], dataTransfer: vscode.DataTransfer) {
+    const files = source.filter((element): element is SavedFile => !isDockerWarning(element))
+    dataTransfer.set(TREE_MIME, new vscode.DataTransferItem(files.map(file => file.path)))
   }
 
-  async handleDrop (target: SavedFile | undefined, dataTransfer: vscode.DataTransfer) {
+  async handleDrop (target: TreeElement | undefined, dataTransfer: vscode.DataTransfer) {
     const paths: string[] | undefined = dataTransfer.get(TREE_MIME)?.value
     if (!paths?.length) return
+    if (target && isDockerWarning(target)) return
     if (target && paths.includes(target.path)) return
 
     await this.moveFiles(paths, target)
@@ -130,7 +154,9 @@ export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile>, vsc
   execAsync = promisify(exec)
   async poll () {
     try {
-      await this.updateStatuses()
+      const projects = await this.fetchProjects()
+      this.setDockerRunning(projects !== undefined)
+      await this.updateStatuses(projects ?? [])
     } catch (e) {
       console.log(e)
     }
@@ -138,10 +164,25 @@ export class FileTreeProvider implements vscode.TreeDataProvider<SavedFile>, vsc
     setTimeout(() => this.poll(), this.POLL_DELAY)
   }
 
-  async updateStatuses () {
-    const { stdout } = await this.execAsync('docker compose ls -a --format json')
-    const projects: ComposeProject[] = JSON.parse(stdout)
-    
+  // undefined means docker is not available (daemon stopped or cli missing)
+  async fetchProjects () {
+    try {
+      const { stdout } = await this.execAsync('docker compose ls -a --format json')
+      return JSON.parse(stdout) as ComposeProject[]
+    } catch (e) {
+      console.log(e)
+      return undefined
+    }
+  }
+
+  setDockerRunning (running: boolean) {
+    if (this.dockerRunning === running) return
+
+    this.dockerRunning = running
+    this._onDidChangeDockerRunning.fire(running)
+  }
+
+  async updateStatuses (projects: ComposeProject[]) {
     for (const file of this.files) {
       const project = projects.find(project => file.label === project.Name)
       file.status = project?.Status ?? 'idle'
@@ -157,6 +198,7 @@ class FileItem extends vscode.TreeItem {
   constructor (uri: vscode.Uri, label: string) { 
     super(uri)
     this.label = label
+    this.contextValue = 'composeFile'
   }
 }
 
@@ -181,7 +223,13 @@ export function registerFileTree (context: vscode.ExtensionContext) {
     }
   })
 
-  context.subscriptions.push(tree, click)
+  const dockerStatus = treeProvider.onDidChangeDockerRunning(running => {
+    if (!running) {
+      vscode.window.showWarningMessage('Docker is not running. Start Docker to manage compose projects.')
+    }
+  })
+
+  context.subscriptions.push(tree, click, dockerStatus)
 
   return treeProvider
 }
