@@ -1,8 +1,23 @@
 {
-  "name": "dct",
+  "name": "docker-compose-tools",
   "version": "0.1.0",
   "description": "Docker Compose Tools: terminal UI for managing docker compose projects",
   "license": "MIT",
+  "author": "Vlad Kutnyakov",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vladkutnyakov/docker-compose-tools.git",
+    "directory": "cli"
+  },
+  "bugs": "https://github.com/vladkutnyakov/docker-compose-tools/issues",
+  "keywords": [
+    "docker",
+    "docker-compose",
+    "compose",
+    "tui",
+    "zed",
+    "cli"
+  ],
   "type": "module",
   "bin": {
     "dct": "dist/dct.js"
@@ -17,6 +32,7 @@
     "build": "node build.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "prepublishOnly": "npm run typecheck && npm run test",
     "prepare": "npm run build"
   },
   "dependencies": {
