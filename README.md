@@ -54,6 +54,38 @@ code --install-extension docker-compose-tools-0.2.0.vsix
 | Remove File | Удаляет файл из панели (не с диска) |
 | Refresh | Немедленно обновляет статусы проектов |
 
+## Zed и терминал: `dct`
+
+Расширения Zed не умеют добавлять собственные панели, поэтому функции расширения повторяет консольное приложение `dct` (папка `cli/`). Это TUI со списком проектов, живыми статусами и теми же командами. Работает в панели терминала Zed и в любом другом терминале.
+
+Требуется Node.js 22.13 или выше.
+
+```
+npm install -g ./cli     # собирает и ставит команду dct
+dct import-vscode        # переносит список файлов из расширения VS Code
+dct                      # открывает TUI
+```
+
+Другие команды: `dct add <файл...>`, `dct ls` (статусы без TUI), `dct config` (путь к файлу настроек). В настройках (`%APPDATA%\docker-compose-tools\config.json`, на macOS и Linux `~/.config/docker-compose-tools/config.json`) можно поменять редактор (`"editor": "zed"`) и интервал опроса (`"pollMs": 2000`).
+
+| Клавиша | Действие |
+|---------|----------|
+| `↑`/`↓`, `j`/`k` | Выбор проекта |
+| `Shift+↑`/`↓`, `K`/`J` | Перемещение проекта вверх и вниз |
+| `u` / `s` / `d` / `p` | `up -d` / `stop` / `down` (с подтверждением) / `pull` |
+| `l` | `docker compose logs --tail 100` |
+| `Enter` / `o` / `f` | Открыть файл в редакторе / папку в новом окне / в проводнике |
+| `a` / `x` | Добавить файл / убрать из списка |
+| `r`, `?`, `q` | Обновить статусы, справка, выход |
+
+### Настройка Zed
+
+Примеры лежат в `cli/zed/`:
+
+- `tasks.json`: задача **Compose Tools**, которая запускает `dct`, и задачи `compose: up/stop/down/pull/logs` для открытого compose-файла (`$ZED_DIRNAME`). Скопируйте в `%APPDATA%\Zed\tasks.json`.
+- `keymap.json`: `ctrl-alt-d` открывает **Compose Tools**.
+- `settings.json`: `"terminal": { "dock": "right" }` ставит терминал сбоку, и TUI выглядит как боковая панель.
+
 ## Информация о релизе
 
 История изменений по версиям — в [CHANGELOG.md](CHANGELOG.md).
@@ -115,6 +147,38 @@ code --install-extension docker-compose-tools-0.2.0.vsix
 | Add File | Adds `.yml` / `.yaml` files to the panel |
 | Remove File | Removes the file from the panel (does not delete from disk) |
 | Refresh | Fetches project statuses immediately |
+
+## Zed and the terminal: `dct`
+
+Zed extensions cannot add custom panels, so the extension's features are also available as the `dct` terminal app (`cli/` folder). It is a TUI with the project list, live statuses and the same commands. It runs in Zed's terminal panel or any other terminal.
+
+Requires Node.js 22.13 or newer.
+
+```
+npm install -g ./cli     # builds and installs the dct command
+dct import-vscode        # copies the file list from the VS Code extension
+dct                      # opens the TUI
+```
+
+Other commands: `dct add <file...>`, `dct ls` (statuses without the TUI), `dct config` (settings file path). The settings file (`%APPDATA%\docker-compose-tools\config.json`, or `~/.config/docker-compose-tools/config.json` on macOS and Linux) sets the editor (`"editor": "zed"`) and the poll interval (`"pollMs": 2000`).
+
+| Key | Action |
+|-----|--------|
+| `↑`/`↓`, `j`/`k` | Select a project |
+| `Shift+↑`/`↓`, `K`/`J` | Move a project up or down |
+| `u` / `s` / `d` / `p` | `up -d` / `stop` / `down` (asks first) / `pull` |
+| `l` | `docker compose logs --tail 100` |
+| `Enter` / `o` / `f` | Open the file in the editor / the folder in a new window / in the file manager |
+| `a` / `x` | Add a file / remove it from the list |
+| `r`, `?`, `q` | Refresh statuses, help, quit |
+
+### Zed setup
+
+Examples are in `cli/zed/`:
+
+- `tasks.json`: a **Compose Tools** task that runs `dct`, plus `compose: up/stop/down/pull/logs` tasks for the open compose file (`$ZED_DIRNAME`). Copy into `%APPDATA%\Zed\tasks.json`.
+- `keymap.json`: `ctrl-alt-d` opens **Compose Tools**.
+- `settings.json`: `"terminal": { "dock": "right" }` puts the terminal on the side, so the TUI looks like a sidebar.
 
 ## Release Notes
 

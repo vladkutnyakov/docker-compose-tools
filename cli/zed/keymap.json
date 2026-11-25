@@ -1,0 +1,9 @@
+// Merge into %APPDATA%\Zed\keymap.json (Windows) or ~/.config/zed/keymap.json (macOS/Linux)
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-alt-d": ["task::Spawn", { "task_name": "Compose Tools" }]
+    }
+  }
+]

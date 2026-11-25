@@ -1,0 +1,41 @@
+// Copy into %APPDATA%\Zed\tasks.json (Windows) or ~/.config/zed/tasks.json (macOS/Linux)
+[
+  {
+    // the TUI with all saved projects
+    "label": "Compose Tools",
+    "command": "dct",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always",
+    "hide": "always",
+    "show_summary": false,
+    "show_command": false
+  },
+  // quick actions for the compose file that is open in the editor
+  {
+    "label": "compose: up (current file)",
+    "command": "docker compose up -d",
+    "cwd": "$ZED_DIRNAME"
+  },
+  {
+    "label": "compose: stop (current file)",
+    "command": "docker compose stop",
+    "cwd": "$ZED_DIRNAME"
+  },
+  {
+    "label": "compose: down (current file)",
+    "command": "docker compose down",
+    "cwd": "$ZED_DIRNAME"
+  },
+  {
+    "label": "compose: pull (current file)",
+    "command": "docker compose pull",
+    "cwd": "$ZED_DIRNAME"
+  },
+  {
+    "label": "compose: logs (current file)",
+    "command": "docker compose logs -f --tail 100",
+    "cwd": "$ZED_DIRNAME",
+    "use_new_terminal": true
+  }
+]

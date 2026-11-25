@@ -1,0 +1,7 @@
+// Merge into %APPDATA%\Zed\settings.json (Windows) or ~/.config/zed/settings.json (macOS/Linux)
+// Docks the terminal panel to the side so the TUI sits next to the editor like the VS Code panel did
+{
+  "terminal": {
+    "dock": "right"
+  }
+}

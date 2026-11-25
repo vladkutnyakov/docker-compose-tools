@@ -2,6 +2,16 @@
 
 Все заметные изменения расширения Docker Compose Tools описываются в этом файле. Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/).
 
+## [Unreleased]
+
+### Добавлено
+
+- Консольное приложение `dct` (папка `cli/`): TUI со списком compose-проектов, живыми статусами и командами `up`/`stop`/`down`/`pull`/`logs` для работы в Zed и любом терминале. Список можно импортировать из расширения командой `dct import-vscode`.
+
+### Изменено
+
+- Общая логика (статусы, порядок, опрос Docker) вынесена в `src/core/` и используется расширением и `dct`.
+
 ## [0.2.0] - 2026-09-28
 
 ### Добавлено
@@ -40,6 +50,16 @@
 # Changelog (English)
 
 All notable changes to the Docker Compose Tools extension are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+## [Unreleased]
+
+### Added
+
+- `dct` terminal app (`cli/` folder): a TUI with the compose project list, live statuses and `up`/`stop`/`down`/`pull`/`logs` commands for use in Zed or any terminal. The list can be imported from the extension with `dct import-vscode`.
+
+### Changed
+
+- Shared logic (statuses, ordering, Docker polling) moved to `src/core/` and used by both the extension and `dct`.
 
 ## [0.2.0] - 2026-09-28
 
