@@ -8,6 +8,12 @@
 
 - Общая логика (статусы, порядок, опрос Docker) вынесена в `src/core/` и используется расширением и `dct`.
 
+## [dct 0.1.1] - 2026-11-25
+
+### Изменено
+
+- README пакета: примечание, что это CLI-инструмент и ставить нужно глобально (`-g`).
+
 ## [dct 0.1.0] - 2026-11-25
 
 ### Добавлено
@@ -58,6 +64,12 @@ All notable changes to the Docker Compose Tools extension are documented in this
 ### Changed
 
 - Shared logic (statuses, ordering, Docker polling) moved to `src/core/` and used by both the extension and `dct`.
+
+## [dct 0.1.1] - 2026-11-25
+
+### Changed
+
+- Package README: note that this is a CLI tool and should be installed globally (`-g`).
 
 ## [dct 0.1.0] - 2026-11-25
 

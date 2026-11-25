@@ -11,6 +11,9 @@ VS Code extension. Works in any terminal; made to live in Zed's terminal panel.
 
 ## Install
 
+> **This is a CLI tool, not a library.** Install it globally with `-g`,
+> otherwise the `dct` command won't be on your `PATH`.
+
 ```console
 npm install -g docker-compose-tools
 ```
