@@ -1,8 +1,9 @@
 import * as vscode from 'vscode'
 import { ComposeProject, SavedFile } from './types'
-import path from 'path'
-import { exec } from 'child_process'
-import { promisify } from 'util'
+import { fetchProjects } from './core/docker'
+import { createSavedFile } from './core/files'
+import { moveFiles } from './core/reorder'
+import { applyStatuses, normalizeStatus } from './core/status'
 
 const TREE_MIME = 'application/vnd.code.tree.dockercomposefiles'
 const CLICK_COMMAND = 'docker-compose-tools.file.click'
@@ -40,13 +41,7 @@ export class FileTreeProvider implements vscode.TreeDataProvider<TreeElement>, v
 
     const item = new FileItem(vscode.Uri.file(element.path), element.label)
 
-    const statuses = ['running', 'exited', 'idle']
-
-    const filteredStatus = element.status
-      ? element.status.replace(/\(.*\)/gm, '')
-      : 'idle'
-
-    const status = statuses.includes(filteredStatus) ? filteredStatus : 'idle'
+    const status = normalizeStatus(element.status)
 
     // svg instead of ThemeIcon: vscode repaints ThemeIcon colors in selected rows
     item.iconPath = vscode.Uri.joinPath(this.extensionUri, 'resources', 'status', `${status}.svg`)
@@ -88,15 +83,7 @@ export class FileTreeProvider implements vscode.TreeDataProvider<TreeElement>, v
 			const filePath = uri.fsPath
       if (this.files.find(file => file.path === filePath)) continue
 
-			const fileName = path.basename(filePath)
-      const fileLabel = path.dirname(uri.path).split('/').pop() ?? path.dirname(filePath)
-
-			this.files.push({
-        name: fileName,
-        path: filePath,
-        label: fileLabel,
-        status: null
-      })
+			this.files.push(createSavedFile(filePath))
 		}
 		await this.state.update('savedFiles', this.files)
 
@@ -128,30 +115,15 @@ export class FileTreeProvider implements vscode.TreeDataProvider<TreeElement>, v
   }
 
   async moveFiles (paths: string[], target?: SavedFile) {
-    const firstMovedIndex = this.files.findIndex(file => paths.includes(file.path))
-    const moved = this.files.filter(file => paths.includes(file.path))
-    if (!moved.length) return
+    const reordered = moveFiles(this.files, paths, target?.path)
+    if (!reordered) return
 
-    const rest = this.files.filter(file => !paths.includes(file.path))
-
-    let insertIndex = rest.length
-    if (target) {
-      const targetIndex = rest.findIndex(file => file.path === target.path)
-      if (targetIndex === -1) return
-
-      // dragging down -> place after target, dragging up -> place before target
-      const originalTargetIndex = this.files.findIndex(file => file.path === target.path)
-      insertIndex = firstMovedIndex < originalTargetIndex ? targetIndex + 1 : targetIndex
-    }
-
-    rest.splice(insertIndex, 0, ...moved)
-    this.files.splice(0, this.files.length, ...rest)
+    this.files.splice(0, this.files.length, ...reordered)
     await this.state.update('savedFiles', this.files)
 
     this.refresh()
   }
 
-  execAsync = promisify(exec)
   async poll () {
     await this.reload()
     setTimeout(() => this.poll(), this.POLL_DELAY)
@@ -166,22 +138,11 @@ export class FileTreeProvider implements vscode.TreeDataProvider<TreeElement>, v
 
   private async fetchAndUpdate () {
     try {
-      const projects = await this.fetchProjects()
+      const projects = await fetchProjects()
       this.setDockerRunning(projects !== undefined)
       await this.updateStatuses(projects ?? [])
     } catch (e) {
       console.log(e)
-    }
-  }
-
-  // undefined means docker is not available (daemon stopped or cli missing)
-  async fetchProjects () {
-    try {
-      const { stdout } = await this.execAsync('docker compose ls -a --format json')
-      return JSON.parse(stdout) as ComposeProject[]
-    } catch (e) {
-      console.log(e)
-      return undefined
     }
   }
 
@@ -193,10 +154,7 @@ export class FileTreeProvider implements vscode.TreeDataProvider<TreeElement>, v
   }
 
   async updateStatuses (projects: ComposeProject[]) {
-    for (const file of this.files) {
-      const project = projects.find(project => file.label === project.Name)
-      file.status = project?.Status ?? 'idle'
-    }
+    applyStatuses(this.files, projects)
 
     await this.state.update('savedFiles', this.files)
 
