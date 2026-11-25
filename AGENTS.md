@@ -37,6 +37,9 @@ Root (extension):
 - `npm test` — vitest. Single file: `npx vitest run test/config.test.ts`.
   Tests isolate via the `DCT_CONFIG_DIR` env var pointing at a temp dir; no
   Docker needed.
+- `npm publish` — publishes as `docker-compose-tools` (`dct` and `dct-cli`
+  are taken on npm; the bin command stays `dct`). `prepublishOnly` runs
+  typecheck + tests, `prepare` rebuilds `dist/` during packing.
 
 Changes touching `src/core/`: root `npm run compile && npm run lint`, plus
 `cd cli && npm run typecheck && npm test` — the only tests exercising shared

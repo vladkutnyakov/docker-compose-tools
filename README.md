@@ -61,7 +61,7 @@ code --install-extension docker-compose-tools-0.2.0.vsix
 Требуется Node.js 22.13 или выше.
 
 ```
-npm install -g ./cli     # собирает и ставит команду dct
+npm install -g docker-compose-tools
 dct import-vscode        # переносит список файлов из расширения VS Code
 dct                      # открывает TUI
 ```
@@ -155,7 +155,7 @@ Zed extensions cannot add custom panels, so the extension's features are also av
 Requires Node.js 22.13 or newer.
 
 ```
-npm install -g ./cli     # builds and installs the dct command
+npm install -g docker-compose-tools
 dct import-vscode        # copies the file list from the VS Code extension
 dct                      # opens the TUI
 ```

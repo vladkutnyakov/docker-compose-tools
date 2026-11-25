@@ -4,13 +4,15 @@
 
 ## [Unreleased]
 
-### Добавлено
-
-- Консольное приложение `dct` (папка `cli/`): TUI со списком compose-проектов, живыми статусами и командами `up`/`stop`/`down`/`pull`/`logs` для работы в Zed и любом терминале. Список можно импортировать из расширения командой `dct import-vscode`.
-
 ### Изменено
 
 - Общая логика (статусы, порядок, опрос Docker) вынесена в `src/core/` и используется расширением и `dct`.
+
+## [dct 0.1.0] - 2026-11-25
+
+### Добавлено
+
+- Консольное приложение `dct` (папка `cli/`): TUI со списком compose-проектов, живыми статусами и командами `up`/`stop`/`down`/`pull`/`logs` для работы в Zed и любом терминале. Список можно импортировать из расширения командой `dct import-vscode`. Пакет опубликован на npm как [`docker-compose-tools`](https://www.npmjs.com/package/docker-compose-tools).
 
 ## [0.2.0] - 2026-09-28
 
@@ -53,13 +55,15 @@ All notable changes to the Docker Compose Tools extension are documented in this
 
 ## [Unreleased]
 
-### Added
-
-- `dct` terminal app (`cli/` folder): a TUI with the compose project list, live statuses and `up`/`stop`/`down`/`pull`/`logs` commands for use in Zed or any terminal. The list can be imported from the extension with `dct import-vscode`.
-
 ### Changed
 
 - Shared logic (statuses, ordering, Docker polling) moved to `src/core/` and used by both the extension and `dct`.
+
+## [dct 0.1.0] - 2026-11-25
+
+### Added
+
+- `dct` terminal app (`cli/` folder): a TUI with the compose project list, live statuses and `up`/`stop`/`down`/`pull`/`logs` commands for use in Zed or any terminal. The list can be imported from the extension with `dct import-vscode`. Published to npm as [`docker-compose-tools`](https://www.npmjs.com/package/docker-compose-tools).
 
 ## [0.2.0] - 2026-09-28
 
